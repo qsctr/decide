@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="manifest" href="manifest.json">
+        <title>Decide</title>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                height: 60%;
+            }
+            #button, #place-name {
+                height: 20%;
+                font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+                text-align: center;
+            }
+            #button {
+                font-size: 80px;
+            }
+            #place-name {
+                font-size: 50px;
+            }
+        </style>
+        <script>
+            if (!('geolocation' in navigator))
+                alert("Your browser does not support geolocation.");
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBz0Mcz92iKO444ye2CmIgqTeO8UqJWDfc&libraries=places"></script>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div id="place-name"></div>
+        <div id="button">DECIDE</div>
+        <script>            
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                var loc = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+                var map = new google.maps.Map(document.querySelector('#map'), {
+                    center: loc,
+                    zoom: 17
+                });
+                var service = new google.maps.places.PlacesService(map);
+                var button = document.querySelector('#button');
+                var marker;
+                button.addEventListener('click', function () {
+                    button.textContent = "DECIDING...";
+                    if (marker) marker.setMap(null);
+                    service.radarSearch({
+                        location: loc,
+                        radius: 500,
+                        type: 'restaurant'
+                    }, function (results, status) {
+                        if (badStatus(status)) return;
+                        var place = results[Math.floor(Math.random() * results.length)];
+                        var placeLoc = place.geometry.location;
+                        service.getDetails(place, function (result2, status2) {
+                            if (badStatus(status2)) return;
+                            marker = new google.maps.Marker({
+                                map: map,
+                                position: placeLoc
+                            });
+                            map.panTo(placeLoc);
+                            document.querySelector('#place-name').textContent = result2.name;
+                            button.textContent = "DECIDE AGAIN";
+                        });
+                    });
+                });
+                function badStatus(s) {
+                    if (s !== google.maps.places.PlacesServiceStatus.OK) {
+                        alert('Error: ' + s);
+                        return true;
+                    }
+                    return false;
+                }
+                navigator.geolocation.watchPosition(function (pos2) {
+                    loc = new google.maps.LatLng(pos2.coords.latitude, pos2.coords.longitude);
+                });
+            }, function (err) {
+                alert('Error ' + err.code + ': ' + err.message);
+            });
+        </script>
+    </body>
+</html>
