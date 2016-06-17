@@ -1,0 +1,21 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+#map {
+    height: 60%;
+}
+#button, #place-name {
+    height: 20%;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#button {
+    font-size: calc(4vw + 4vh + 2vmin);
+}
+#place-name {
+    font-size: 30px;
+}
